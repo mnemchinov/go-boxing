@@ -71,10 +71,10 @@ func main() {
 		fmt.Println("Draw!")
 	}
 	if boxer1.Health > boxer2.Health {
-		fmt.Println("Boxer 1 win!")
+		fmt.Printf("%s win!!!", boxer1.Name)
 	}
 	if boxer1.Health < boxer2.Health {
-		fmt.Println("Boxer 2 win!")
+		fmt.Printf("%s win!!!", boxer2.Name)
 	}
 
 }
