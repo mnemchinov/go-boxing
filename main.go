@@ -2,46 +2,8 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"strings"
 )
-
-type Boxer struct {
-	Name   string
-	Health int64
-}
-
-type BodyParts int64
-
-const (
-	Head BodyParts = 0
-	Body BodyParts = 1
-	Legs BodyParts = 2
-)
-
-func (cs BodyParts) String() string {
-	switch cs {
-	case Head:
-		return "Head"
-	case Body:
-		return "Body"
-	case Legs:
-		return "Legs"
-	}
-	return "Unknown"
-}
-
-var listBodyParts = [3]BodyParts{Head, Body, Legs}
-
-func (b Boxer) Attack(attackedBoxer *Boxer) {
-	attackedBodyPart := listBodyParts[rand.Intn(2)]
-	blockedBodyPart := listBodyParts[rand.Intn(2)]
-	fmt.Println(b.Name, "attack:", attackedBodyPart, "|", attackedBoxer.Name, "block:", blockedBodyPart)
-
-	if attackedBodyPart != blockedBodyPart {
-		attackedBoxer.Health = attackedBoxer.Health - 1
-	}
-}
 
 func getHealthString(health int64, maxHeath int64) string {
 	filled := strings.Repeat("█", int(health))
@@ -51,30 +13,24 @@ func getHealthString(health int64, maxHeath int64) string {
 
 func main() {
 	var maxHeath int64 = 3
-	boxer1 := Boxer{Name: "Boxer1", Health: maxHeath}
-	boxer2 := Boxer{Name: "Boxer2", Health: maxHeath}
-	maxStep := 100
-	step := 0
+	boxer1 := CreateBoxer("Boxer1", maxHeath)
+	boxer2 := CreateBoxer("Boxer2", maxHeath)
+	game := CreateNewGame(180, &boxer1, &boxer2)
 	fmt.Println("Let's get ready to rumble!")
 	fmt.Println("---------- BOX!!! ----------")
-	for boxer1.Health > 0 && boxer2.Health > 0 && step < maxStep {
-		fmt.Printf("%s: %s ", boxer1.Name, getHealthString(boxer1.Health, maxHeath))
-		fmt.Printf("%s: %s ", boxer2.Name, getHealthString(boxer2.Health, maxHeath))
+	for !game.GameOver {
+		fmt.Printf("***** STEP %v *****", game.CurrentStep)
 		fmt.Println()
-		step++
-		boxer1.Attack(&boxer2)
-		boxer2.Attack(&boxer1)
-		fmt.Printf("***** STEP %v *****", step)
+		fmt.Printf("%s: %s ", boxer1.Name, getHealthString(game.Boxer1.Health, maxHeath))
+		fmt.Printf("%s: %s ", boxer2.Name, getHealthString(game.Boxer2.Health, maxHeath))
 		fmt.Println()
+		game.Next()
+		fmt.Println(game.Boxer1.Name, "attack:", game.Boxer1.AttackedBodyPart, "|", game.Boxer2.Name, "block:", game.Boxer2.BlockedBodyPart)
+		fmt.Println(game.Boxer2.Name, "attack:", game.Boxer2.AttackedBodyPart, "|", game.Boxer1.Name, "block:", game.Boxer1.BlockedBodyPart)
 	}
-	if boxer1.Health == boxer2.Health {
+	if game.CurrentWinner == nil {
 		fmt.Println("Draw!")
+	} else {
+		fmt.Printf("The %s win!!!", game.CurrentWinner.Name)
 	}
-	if boxer1.Health > boxer2.Health {
-		fmt.Printf("%s win!!!", boxer1.Name)
-	}
-	if boxer1.Health < boxer2.Health {
-		fmt.Printf("%s win!!!", boxer2.Name)
-	}
-
 }
